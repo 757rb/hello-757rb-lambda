@@ -12,7 +12,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: app/
-      Handler: app.helloworld
+      Handler: app.handler
       Runtime: ruby2.5
       Environment:
         Variables:

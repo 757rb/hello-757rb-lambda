@@ -2,5 +2,5 @@
 
 set -e
 
-rm -rf ./aws-sam
+rm -rf ./.aws-sam
 sam local start-api

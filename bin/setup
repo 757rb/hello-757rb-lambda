@@ -2,4 +2,4 @@
 
 set -e
 
-bundle install --path app/vendor/bundle
+bundle install --path app/vendor/bundle --no-deployment
