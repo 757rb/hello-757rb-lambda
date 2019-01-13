@@ -1,6 +1,8 @@
 
 # Using Ruby with AWS Lambda & SAM
 
+![Ruby AWS SAM & Lambda](https://user-images.githubusercontent.com/2381/51087409-f0ed8100-1720-11e9-87be-c493920bdca0.jpg)
+
 A demo project build by [757rb](https://757rb.org) to explore the latest AWS SAM tool with Ruby & Lambda. High level goals.
 
 * Strap script conventions for bootstrap, setup, deploy, test, and more.
