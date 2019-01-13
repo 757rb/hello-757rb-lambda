@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+sam build
+# sam build --use-container
+
+# Remove top level vendor directory added by `sam build` above.
+rm -rf ./vendor

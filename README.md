@@ -1,168 +1,105 @@
-# bigfunc-ruby
 
-This is a sample template for bigfunc-ruby - Below is a brief explanation of what we have generated for you:
+# Using Ruby with AWS Lambda & SAM
 
-```bash
-.
-├── README.md                   <-- This instructions file
-├── hello_world                 <-- Source code for a lambda function
-│   ├── app.rb                  <-- Lambda function code
-│   ├── Gemfile                 <-- Ruby function dependencies
-├── Gemfile                     <-- Ruby test/documentation dependencies
-├── template.yaml               <-- SAM template
-└── tests                       <-- Unit tests
-    └── unit
-        └── test_handler.rb
+A demo project build by [757rb](https://757rb.org) to explore the latest AWS SAM tool with Ruby & Lambda.
+
+
+## Setup
+
+Make sure to install the following prerequisites before proceeding.
+
+* Homebrew - https://brew.sh
+* Rbenv - https://github.com/rbenv/rbenv
+* Ruby Build - https://github.com/rbenv/ruby-build
+* Docker - https://docs.docker.com/docker-for-mac/install/
+* AWS CLI - https://aws.amazon.com/cli/
+  - Requires Python
+  - Ensure you setup your root AWS credentials too.
+
+Setup scripts follow the [Strap](https://github.com/MikeMcQuaid/strap) convention. The bootstrap will install [AWS SAM CLI](https://aws.amazon.com/serverless/sam/) via Homebrew and also sets the local Ruby version to 2.5.3 via `rbenv` & `ruby-build`.
+
+Finally, running bootstrap will make a S3 bucket in your AWS account to host your SAM/CloudFormation template. The default name will be `$(whoami)-cloudformation.757rb.org` or you can override this by exporting the `BUCKET_NAME` environment variable.
+
+```shell
+./bin/bootstrap
 ```
 
-## Requirements
+Other Strap bin files include the following. Please examine these to see how the use AWS SAM for each task.
 
-* AWS CLI already configured with at least PowerUser permission
-* [Ruby](https://www.ruby-lang.org/en/documentation/installation/) 2.5 installed
-* [Docker installed](https://www.docker.com/community-edition)
-* [Ruby Version Manager](http://rvm.io/)
+* `./bin/server` - Starts SAM local development. Uses `sam local start-api`.
+* `./bin/build` - Prepares your Lambda for deploying in the `.aws-sam` directory. Uses `sam build`.
+* `./bin/update` - Resets all vendored gems and re bundles.
+* `./bin/info` - Shows the Function's CloudFormation Outputs. Uses `aws cloudformation describe-stacks`.
 
-## Setup process
 
-### Match ruby version with docker image
-For high fidelity development environment, make sure the local ruby version matches that of the docker image. To do so lets use [Ruby Version Manager](http://rvm.io/)
+## Notes
 
-Setup Ruby Version Manager from [Ruby Version Manager](http://rvm.io/)
+Brief presentation notes & how this project progressed.
 
-Run following commands
+#### A Brief Intro to SAM
 
-```bash
-rvm install ruby-2.5.3
-rvm use ruby-2.5.3
-rvm --default use 2.5.3
+* Avoid using the older [Serverless](https://serverless.com) toolkit. Abstraction of [CloudFormation](https://aws.amazon.com/cloudformation/) and not needed when focusing on AWS Lambda.
+* The [AWS SAM](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md) spec is a superset of CloudFormation. Use this reference when learning.
+* The [AWS SAM CLI](https://github.com/awslabs/aws-sam-cli) is a command line tool for manager AWS Lambda for both local development and deployment to production.
+
+Some helpful links about AWS SAM CLI.
+
+* [SAM How To](https://github.com/awslabs/serverless-application-model/blob/master/HOWTO.md)
+* [Usage](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/usage.md)
+* [Advanced Usage](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/advanced_usage.md)
+
+#### Created New Ruby App
+
+Commands I used to create the project.
+
+```shell
+sam init --runtime ruby2.5 --name hello-757rb-lambda
+cd hello-757rb-lambda
+git init
+git commit -a -m "Initial Project"
 ```
 
-### Building the Project
+Then to use it.
 
-```sam-app``` comes with a Gemfile that defines the requirements and manages installing them. The `sam build` command will install the dependencies in your function Gemfile and vendor it for deployment.
-
-```
-sam build
-```
-
-If your dependencies contain native modules that need to be compiled specifically for the operating system running on AWS Lambda, use this command to build inside a Lambda-like Docker container instead:
-
-```
-sam build --use-container
-```
-By default, this command writes built artifacts to .aws-sam/build folder.
-
-**NOTE:** As you change your dependencies during development you'll need to run `sam build` again in order to execute your Lambda and/or API Gateway locally.
-
-### Local development
-
-**Invoking function locally through local API Gateway**
-
-```bash
+```shell
+rbenv local 2.5.3
+bundle install
 sam local start-api
+open "http://127.0.0.1:3000/hello"
 ```
 
-If the previous command ran successfully you should now be able to hit the following local endpoint to invoke your function `http://localhost:3000/hello`
+And got this error.
 
-**SAM CLI** is used to emulate both Lambda and API Gateway locally and uses our `template.yaml` to understand how to bootstrap this environment (runtime, where the source code is, etc.) - The following excerpt is what the CLI will read in order to initialize an API and its routes:
-
-```yaml
-...
-Events:
-    HelloWorld:
-        Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-        Properties:
-            Path: /hello
-            Method: get
+```
+"errorMessage": "cannot load such file -- httparty"
 ```
 
-## Packaging and deployment
+Oh... the project runs in Docker from that hello world directory. SUCCESS!
 
-AWS Lambda Ruby runtime requires a flat folder with all dependencies including the application. SAM will use `CodeUri` property to know where to look up for both application and dependencies:
-
-```yaml
-...
-    HelloWorldFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            CodeUri: hello_world/
-            ...
+```shell
+bundle install --path app/vendor/bundle
+sam local start-api
+open "http://127.0.0.1:3000/hello"
 ```
 
-Firstly, we need a `S3 bucket` where we can upload our Lambda functions packaged as ZIP before we deploy anything - If you don't have a S3 bucket to store code artifacts then this is a good time to create one:
+#### First Cleanup
 
-```bash
-aws s3 mb s3://BUCKET_NAME
+Removed `.gitignore` and replaced with this to avoid checking in vendored gems into source control. Also ignorning the `.aws-sam` directory which holds the build.
+
+```
+app/vendor/*
+.bundle/*
+.aws-sam
 ```
 
-Next, run the following command to package our Lambda function to S3:
+Also cleaned up both the `template.yaml` and `app.rb` file to show some debug info.
 
-```bash
-sam package \
-    --template-file template.yaml \
-    --output-template-file packaged.yaml \
-    --s3-bucket REPLACE_THIS_WITH_YOUR_S3_BUCKET_NAME
-```
+#### Bootstrapping & Deploy
 
-Next, the following command will create a Cloudformation Stack and deploy your SAM resources.
+* Creating Strap conventions in `./bin` directory.
+* bin/bootstrap and friends (AWS CLI, Rbenv, Bundler, S3 Bucket)
 
-```bash
-sam deploy \
-    --template-file packaged.yaml \
-    --stack-name sam-app \
-    --capabilities CAPABILITY_IAM
-```
+⚠️ Learned that if `.aws-sam/build` is present, then `sam local` will use that directory. This will make you go crazy trying to figure out why changes to your code do not show up when hitting refresh in the browser. Added a `rm -rf` to that directory in `bin/server` to help avoid this.
 
-> **See [Serverless Application Model (SAM) HOWTO Guide](https://github.com/awslabs/serverless-application-model/blob/master/HOWTO.md) for more details in how to get started.**
-
-After deployment is complete you can run the following command to retrieve the API Gateway Endpoint URL:
-
-```bash
-aws cloudformation describe-stacks \
-    --stack-name sam-app \
-    --query 'Stacks[].Outputs'
-``` 
-
-## Testing
-
-Run our initial unit tests:
-
-```bash
-ruby tests/unit/test_handler.rb
-```
-
-**NOTE**: It is recommended to use a Ruby Version Manager to manage, and work with multiple ruby environments from interpreters to sets of gems
-# Appendix
-
-## AWS CLI commands
-
-AWS CLI commands to package, deploy and describe outputs defined within the cloudformation stack after building:
-
-```bash
-sam package \
-    --template-file template.yaml \
-    --output-template-file packaged.yaml \
-    --s3-bucket REPLACE_THIS_WITH_YOUR_S3_BUCKET_NAME
-
-sam deploy \
-    --template-file packaged.yaml \
-    --stack-name sam-app \
-    --capabilities CAPABILITY_IAM \
-    --parameter-overrides MyParameterSample=MySampleValue
-
-aws cloudformation describe-stacks \
-    --stack-name sam-app --query 'Stacks[].Outputs'
-```
-
-## Bringing to the next level
-
-Here are a few ideas that you can use to get more acquainted as to how this overall process works:
-
-* Create an additional API resource (e.g. /hello/{proxy+}) and return the name requested through this new path
-* Update unit test to capture that
-* Package & Deploy
-
-Next, you can use the following resources to know more about beyond hello world samples and how others structure their Serverless applications:
-
-* [AWS Serverless Application Repository](https://aws.amazon.com/serverless/serverlessrepo/)
+⚠️ The `sam build` also leaves a root `vendor` directory for some reason, likely due to a copy. Used `bin/build` to remove this too.
 

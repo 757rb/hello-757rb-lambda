@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+rm -rf app/vendor/bundle
+./bin/setup

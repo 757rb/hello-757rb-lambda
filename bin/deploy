@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+./bin/build
+
+export CF_BUCKET_NAME=${CF_BUCKET_NAME:="$(whoami)-cloudformation.757rb.org"}
+
+sam package \
+    --template-file ./.aws-sam/build/template.yaml \
+    --output-template-file ./.aws-sam/build/packaged.yaml \
+    --s3-bucket $CF_BUCKET_NAME
+
+sam deploy \
+    --template-file ./.aws-sam/build/packaged.yaml \
+    --stack-name hello-757rb-lambda \
+    --capabilities CAPABILITY_IAM
+    # --parameter-overrides MyParameterSample=MySampleValue
+
+./bin/info

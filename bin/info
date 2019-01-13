@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+aws cloudformation describe-stacks \
+    --stack-name hello-757rb-lambda \
+    --query 'Stacks[].Outputs'

@@ -2,7 +2,7 @@ require 'json'
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../../hello_world/app'
+require_relative '../../app/app'
 
 class HelloWorldTest < Test::Unit::TestCase
   def event
