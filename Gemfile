@@ -1,8 +1,10 @@
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
-gem "httparty"
+group :development, :test do
+  gem 'rake'
+end
 
 group :test do
-  gem "test-unit"
-  gem "mocha"
+  gem 'pry'
+  gem 'minitest'
 end

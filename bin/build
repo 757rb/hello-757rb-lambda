@@ -7,3 +7,9 @@ sam build
 
 # Remove top level vendor directory added by `sam build` above.
 rm -rf ./vendor
+
+# Remove ./.bundle/config to avoid frozen and bundle without setting.
+rm -rf ./.bundle/config
+
+# Now re-setup local development.
+./bin/update

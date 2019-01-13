@@ -1,7 +1,12 @@
 
 # Using Ruby with AWS Lambda & SAM
 
-A demo project build by [757rb](https://757rb.org) to explore the latest AWS SAM tool with Ruby & Lambda.
+A demo project build by [757rb](https://757rb.org) to explore the latest AWS SAM tool with Ruby & Lambda. High level goals.
+
+* Strap script conventions for bootstrap, setup, deploy, test, and more.
+* Solid directory setup to kickstart your next project.
+* Leverage Minitest & Capybara for unit & system tests.
+* Demonstrate AWS resource usage like DynamoDB.
 
 
 ## Setup
@@ -30,6 +35,7 @@ Other Strap bin files include the following. Please examine these to see how the
 * `./bin/build` - Prepares your Lambda for deploying in the `.aws-sam` directory. Uses `sam build`.
 * `./bin/update` - Resets all vendored gems and re bundles.
 * `./bin/info` - Shows the Function's CloudFormation Outputs. Uses `aws cloudformation describe-stacks`.
+* `./bin/test` - Runs all the tests.
 
 
 ## Notes
@@ -103,3 +109,24 @@ Also cleaned up both the `template.yaml` and `app.rb` file to show some debug in
 
 ⚠️ The `sam build` also leaves a root `vendor` directory for some reason, likely due to a copy. Used `bin/build` to remove this too.
 
+#### Better App/Test Directories & Files
+
+There is a bit of a tug of war going on here when needing to use Bundler for both build packaging and local development. This simple command illustrates the core issue and how `.bundle/config` will change when running `sam build`.
+
+```shell
+$ sam build
+$ cat .bundle/config
+BUNDLE_PATH: "vendor/bundle"
+BUNDLE_FROZEN: "true"
+BUNDLE_WITHOUT: "development:test"
+```
+
+Miscellaneous changes to support that issue and other work:
+
+* Added some top level goals of the project.
+* New `test` directory structure.
+* Add cleanup to `bin/build` script and re-setup local dev bundle.
+* Added `--no-deployment` to `bin/setup` so updates to Gemfile work well.
+* Leveraged Bundler in `test_helper
+* Move POROs to app/src and keep `app.rb` slim.
+* Created an example unit spec/test.
