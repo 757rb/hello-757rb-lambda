@@ -46,6 +46,10 @@ class HelloWorld
           <pre>
             #{JSON.pretty_generate(ENV.to_h)}
           </pre>
+          <h2>PLOS Search</h2>
+          <code>
+            #{CGI::escapeHTML(PlosSearch.new('Ruby').search.inspect)}
+          </code>
         </body>
       </html>
     HTML

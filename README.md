@@ -29,15 +29,16 @@ Finally, running bootstrap will make a S3 bucket in your AWS account to host you
 
 ```shell
 ./bin/bootstrap
+./bin/setup
 ```
 
-Other Strap bin files include the following. Please examine these to see how the use AWS SAM for each task.
+From here you can run `bin/server` or `bin/test` as needed. Other Strap bin files include the following. Please examine these to see how the use AWS SAM for each task.
 
 * `./bin/server` - Starts SAM local development. Uses `sam local start-api`.
+* `./bin/test` - Runs all the tests.
 * `./bin/build` - Prepares your Lambda for deploying in the `.aws-sam` directory. Uses `sam build`.
 * `./bin/update` - Resets all vendored gems and re bundles.
 * `./bin/info` - Shows the Function's CloudFormation Outputs. Uses `aws cloudformation describe-stacks`.
-* `./bin/test` - Runs all the tests.
 
 
 ## Notes
@@ -132,3 +133,37 @@ Miscellaneous changes to support that issue and other work:
 * Leveraged Bundler in `test_helper
 * Move POROs to app/src and keep `app.rb` slim.
 * Created an example unit spec/test.
+
+#### Native Extensions
+
+The goal of these changes is to introduce basic gems with native C extensions into the development, test, and deploy process. The high level summary of changes to meet this objective include:
+
+* Added Nokogiri gem which builds against libxml.
+* Get some XML from a service ([PLOS](https://www.plos.org)) via HTTP.
+* Leverage Nokogiri via ActiveSupport to parse PLOS results.
+* Made sure to use Bundler 1.17.3 in project. Details below.
+* Used `sam build --use-container` in build script.
+* Ensure Docker development local tests share platform native gems.
+* Copy Gemfile files to `app` directory when building. Git ignore these.
+
+Other smaller changes include:
+
+* Add some debug HTML to the page to show PLO requests.
+* Added Guard for rapid test feedback.
+* Increase memory size to 256 megabytes.
+* Increase lambda timeout to 10 seconds.
+
+About Bundler 2 and how we juggled the `.aws-build` directory to get both local tests and the development server to work together. First, errors when building can often return a very un-helpful message.
+
+```
+{"jsonrpc": "2.0", "id": 1, "error": {"code": 400, "message": "PythonPipBuilder:ResolveDependencies - Could not satisfy the requirement: requests==2.20.0"}}
+```
+
+To over come this, we can use the following command to debug the errors in the build process. This is how I found that using Bundler v2 locally will cause errors for the build Docker container.
+
+```shell
+docker run -v $(pwd):/var/task \
+  lambci/lambda:build-ruby2.5 \
+  bash -c "bundle install --without development test --verbose"
+```
+

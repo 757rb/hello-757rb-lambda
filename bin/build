@@ -2,14 +2,22 @@
 
 set -e
 
-sam build
-# sam build --use-container
+# Clean any previous comingled bundle dir.
+rm -rf ./app/vendor/bundle
 
-# Remove top level vendor directory added by `sam build` above.
-rm -rf ./vendor
+# Copy these to app so build can use them. Symlink will not work.
+rm -rf ./app/Gemfile
+rm -rf ./app/Gemfile.lock
+cp ./Gemfile ./app/Gemfile
+cp ./Gemfile.lock ./app/Gemfile.lock
 
-# Remove ./.bundle/config to avoid frozen and bundle without setting.
-rm -rf ./.bundle/config
+# Ensure native extensions are compatible.
+sam build --use-container
 
-# Now re-setup local development.
-./bin/update
+# Copy the build bundle to allow server native extensions to work.
+rm -rf ./app/vendor/bundle
+cp -R ./.aws-sam/build/HelloWorldFunction/vendor/bundle ./app/vendor/bundle
+
+# Make a comingled bundle dir for build and this platform.
+rm -rf ./.bundle
+bundle install --path app/vendor/bundle

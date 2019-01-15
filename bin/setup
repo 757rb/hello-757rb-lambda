@@ -2,4 +2,7 @@
 
 set -e
 
+rm -rf ./.bundle
 bundle install --path app/vendor/bundle --no-deployment
+
+./bin/build
