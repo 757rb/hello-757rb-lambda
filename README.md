@@ -167,3 +167,10 @@ docker run -v $(pwd):/var/task \
   bash -c "bundle install --without development test --verbose"
 ```
 
+#### DynamoDB
+
+Allow Lambda to own a DynamoDB instance and use it for storing results of API queries to PLOS. Details to support this change include:
+
+* Change API Gateway to use `/{resource+}` to slurp all path params.
+* Pass the `query` query parameter down to the `PlosSearch` object.
+
