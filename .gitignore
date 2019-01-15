@@ -2,3 +2,6 @@
 app/vendor/bundle
 .bundle/*
 .aws-sam
+
+app/Gemfile
+app/Gemfile.lock

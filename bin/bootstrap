@@ -12,7 +12,10 @@ brew upgrade ruby-build || true
 rbenv install --skip-existing 2.5.3
 rbenv local 2.5.3
 
-gem install bundler
+gem uninstall -aIx bundler
+gem install bundler -v 1.17.3
+
+rm -rf app/vendor/bundle
 bundle install --path app/vendor/bundle
 
 aws s3 mb "s3://$CF_BUCKET_NAME"

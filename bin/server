@@ -2,5 +2,7 @@
 
 set -e
 
-rm -rf ./.aws-sam
+# Delete the static build to avoid local server using it.
+rm -rf ./.aws-sam/build
+
 sam local start-api
