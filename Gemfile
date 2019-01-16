@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'activesupport'
+gem 'aws-record'
 gem 'faraday'
 gem 'net-http-persistent'
 gem 'nokogiri'

@@ -28,6 +28,14 @@ class HelloWorld
 
   private
 
+  def plos_search
+    @plos_search ||= begin
+      qsp = event['queryStringParameters']
+      title = qsp && qsp['query'] ? qsp['query'] : 'Ruby'
+      PlosSearch.new(title)
+    end
+  end
+
   def debug_html
     <<-HTML
       <!DOCTYPE html>
@@ -48,7 +56,7 @@ class HelloWorld
           </pre>
           <h2>PLOS Search</h2>
           <code>
-            #{CGI::escapeHTML(PlosSearch.new('Ruby').search.inspect)}
+            #{CGI::escapeHTML(plos_search.search.inspect)}
           </code>
         </body>
       </html>

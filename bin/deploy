@@ -14,7 +14,7 @@ sam package \
 sam deploy \
     --template-file ./.aws-sam/build/packaged.yaml \
     --stack-name hello-757rb-lambda \
-    --capabilities CAPABILITY_IAM
-    # --parameter-overrides MyParameterSample=MySampleValue
+    --capabilities CAPABILITY_IAM \
+    --parameter-overrides StageName=prod
 
 ./bin/info

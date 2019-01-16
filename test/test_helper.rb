@@ -1,3 +1,4 @@
+ENV['STAGE'] = 'test'
 require 'bundler/setup'
 Bundler.require :development, :test
 require_relative '../app/app'

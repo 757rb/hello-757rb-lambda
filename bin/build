@@ -16,7 +16,7 @@ sam build --use-container
 
 # Copy the build bundle to allow server native extensions to work.
 rm -rf ./app/vendor/bundle
-cp -R ./.aws-sam/build/HelloWorldFunction/vendor/bundle ./app/vendor/bundle
+cp -R ./.aws-sam/build/MyFunction/vendor/bundle ./app/vendor/bundle
 
 # Make a comingled bundle dir for build and this platform.
 rm -rf ./.bundle
