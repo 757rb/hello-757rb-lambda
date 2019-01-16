@@ -2,13 +2,20 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Using Ruby with AWS Lambda & SAM by 757rb.org
 
-Globals:
-  Function:
-    Timeout: 3
+Parameters:
+
+  StageName:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - test
+      - staging
+      - prod
 
 Resources:
 
-  HelloWorldFunction:
+  MyFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: app/
@@ -18,24 +25,44 @@ Resources:
       Timeout: 10
       Environment:
         Variables:
-          PARAM1: VALUE
+          STAGE: !Ref StageName
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:*
+              Resource:
+                - !GetAtt PlosSearchTable.Arn
       Events:
-        HelloWorld:
+        MyApi:
           Type: Api
           Properties:
             Path: /{resource+}
             Method: get
 
+  PlosSearchTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: !Join
+        - ''
+        - - plos-search
+          - '-'
+          - !Ref StageName
+      PrimaryKey:
+        Name: id
+        Type: String
+
 Outputs:
 
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+  MyApi:
+    Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
 
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
+  Function:
+    Description: Lambda function ARN.
+    Value: !GetAtt MyFunction.Arn
 
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+  FunctionIamRole:
+    Description: Implicit IAM Role created for the function.
+    Value: !GetAtt MyFunctionRole.Arn

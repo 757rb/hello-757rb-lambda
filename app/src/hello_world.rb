@@ -30,7 +30,8 @@ class HelloWorld
 
   def plos_search
     @plos_search ||= begin
-      title = event['queryStringParameters']['query'] || 'Ruby'
+      qsp = event['queryStringParameters']
+      title = qsp && qsp['query'] ? qsp['query'] : 'Ruby'
       PlosSearch.new(title)
     end
   end

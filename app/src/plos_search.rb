@@ -51,7 +51,15 @@ class PlosSearch
     attr_reader :id, :title, :abstract
     def initialize(attrs)
       @id, @title, @abstract = attrs
+      find_or_create_dyno_dna_record
+    end
+
+    private
+
+    def find_or_create_dyno_dna_record
+      return if PlosSearchTable.find id: id
+      plos = PlosSearchTable.new id: id, title: title, abstract: abstract
+      plos.save
     end
   end
-
 end

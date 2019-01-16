@@ -171,6 +171,28 @@ docker run -v $(pwd):/var/task \
 
 Allow Lambda to own a DynamoDB instance and use it for storing results of API queries to PLOS. Details to support this change include:
 
+
+* Added [Aws::Record](https://github.com/aws/aws-sdk-ruby-record) gem to the project.
 * Change API Gateway to use `/{resource+}` to slurp all path params.
 * Pass the `query` query parameter down to the `PlosSearch` object.
+* New `PlosSearchTable` DynamoDB PORO with simple schema & migration class methods.
+* Made `PlosSearch#search` find or create DynamoDB records.
+* Lazily create DynamoDB tables in development & test envs.
+* Added an `Policies` section to the template.yml with full access to the new `PlosSearchTable` arn.
+
+Some helpful DynamoDB resources when getting started with SAM & Ruby.
+
+* [AWS::Serverless::SimpleTable in AWS SAM](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable)
+* [AWS::DynamoDB::Table in CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html)
+* [Amazon DynamoDB–related content from AWS re:Invent 2018](https://aws.amazon.com/blogs/database/amazon-dynamodb-related-content-from-aws-reinvent-2018/)
+* [The Aws::Record Gem](https://github.com/aws/aws-sdk-ruby-record)
+* [Announcing Amazon DynamoDB On-Demand](https://aws.amazon.com/about-aws/whats-new/2018/11/announcing-amazon-dynamodb-on-demand/)
+* [Future SAM Billing Mode Issue](https://github.com/awslabs/serverless-application-model/pull/705)
+
+Other smaller changes include:
+
+* Added a STAGE parameter to CloudFormation template and "prod" to deploy script.
+* Created a simple Myenv PORO to check current ENV stuff.
+* Renamed some logical resource id names in template.yml.
+
 
